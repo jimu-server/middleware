@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/golang-jwt/jwt"
-	"github.com/jimu-server/config/config"
+	"github.com/jimu-server/config"
 	"github.com/jimu-server/model"
 	"time"
 )
