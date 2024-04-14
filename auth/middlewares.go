@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Key 从 gin.Context 中获取 Token 的key
 const Key = "Token"
 
 func Authorization() gin.HandlerFunc {
