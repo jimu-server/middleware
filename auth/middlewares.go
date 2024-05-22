@@ -9,10 +9,17 @@ import (
 // Key 从 gin.Context 中获取 Token 的key
 const Key = "Token"
 
+// Authorization 身份验证中间件
+// 解析当前用户 id 和当前组织信息
 func Authorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		respResult := resp.Error(resp.AuthorizationExpired, resp.Msg("身份验证失败"), resp.Code(resp.TokenErr))
 		tokenString := c.GetHeader("Authorization")
+		orgId := c.GetHeader("Orgid")
+		if orgId == "" {
+			c.AbortWithStatusJSON(500, resp.Error(resp.AuthorizationExpired, resp.Msg("组织机构验证失败")))
+			return
+		}
 		if tokenString == "" {
 			// websocket 身份校验
 			if tokenString = c.GetHeader("Sec-Websocket-Protocol"); tokenString == "" {
@@ -29,6 +36,7 @@ func Authorization() gin.HandlerFunc {
 			return
 		}
 		v.Value = tokenString
+		v.OrgId = orgId
 		c.Set(Key, v)
 		c.Next()
 	}
