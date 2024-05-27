@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jimu-server/common/resp"
+	"slices"
 	"strings"
 )
 
@@ -11,14 +12,15 @@ const Key = "Token"
 
 // Authorization 身份验证中间件
 // 解析当前用户 id 和当前组织信息
-func Authorization() gin.HandlerFunc {
+// urls 配置在用户访问权限中需要过滤放行的 url 接口
+func Authorization(urls ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		respResult := resp.Error(resp.AuthorizationExpired, resp.Msg("身份验证失败"), resp.Code(resp.TokenErr))
 		tokenString := c.GetHeader("Authorization")
 		orgId := c.GetHeader("Orgid")
-		if orgId == "" {
+		requestURI := c.Request.RequestURI
+		if orgId == "" && !slices.Contains(urls, requestURI) {
 			c.AbortWithStatusJSON(500, resp.Error(resp.AuthorizationExpired, resp.Msg("组织机构验证失败")))
-			return
 		}
 		if tokenString == "" {
 			// websocket 身份校验
